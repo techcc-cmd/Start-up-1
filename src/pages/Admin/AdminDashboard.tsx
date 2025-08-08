@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Users, 
   Calendar, 
@@ -17,6 +17,19 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
+
+  const [showReport, setShowReport] = useState(false);
+  const [showDoctorModal, setShowDoctorModal] = useState(false);
+  const [showViewReports, setShowViewReports] = useState(false);
+
+  // Doctor form state
+  const [doctorName, setDoctorName] = useState('');
+  const [doctorDept, setDoctorDept] = useState('');
+  const [doctorPhone, setDoctorPhone] = useState('');
+  const [doctors, setDoctors] = useState([
+    { name: 'Dr. Sarah Wilson', department: 'Cardiology', phone: '9876543210' },
+    { name: 'Dr. Amit Kumar', department: 'Neurology', phone: '9123456789' }
+  ]);
 
   const hospitalStats = [
     { label: 'Total Patients', value: '2,847', change: '+12%', icon: Users, color: 'text-blue-600' },
@@ -91,6 +104,18 @@ const AdminDashboard: React.FC = () => {
       priority: 'low'
     }
   ];
+
+  // Add doctor handler
+  const handleAddDoctor = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (doctorName && doctorDept && doctorPhone) {
+      setDoctors([...doctors, { name: doctorName, department: doctorDept, phone: doctorPhone }]);
+      setDoctorName('');
+      setDoctorDept('');
+      setDoctorPhone('');
+      setShowDoctorModal(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -213,13 +238,19 @@ const AdminDashboard: React.FC = () => {
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h2>
               <div className="space-y-3">
-                <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                <button 
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                  onClick={() => setShowDoctorModal(true)}
+                >
                   Add New Doctor
                 </button>
                 <button className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors">
                   Manage Departments
                 </button>
-                <button className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors">
+                <button 
+                  className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => setShowViewReports(true)}
+                >
                   View Reports
                 </button>
                 <button className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors">
@@ -268,25 +299,175 @@ const AdminDashboard: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Today's Revenue</span>
-                  <span className="font-semibold text-green-600">$45,230</span>
+                  <span className="font-semibold text-green-600">₹45,230</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Monthly Target</span>
-                  <span className="font-semibold text-blue-600">$1.2M</span>
+                  <span className="font-semibold text-blue-600">₹12,00,000</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Outstanding Bills</span>
-                  <span className="font-semibold text-orange-600">$23,450</span>
+                  <span className="font-semibold text-orange-600">₹23,450</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Insurance Claims</span>
-                  <span className="font-semibold text-purple-600">$67,890</span>
+                  <span className="font-semibold text-purple-600">₹67,890</span>
                 </div>
               </div>
-              <button className="w-full mt-4 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
+              <button 
+                className="w-full mt-4 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors"
+                onClick={() => setShowReport(true)}
+              >
                 View Full Report
               </button>
             </div>
+
+            {/* Add Doctor Modal */}
+            {showDoctorModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full relative">
+                  <button
+                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+                    onClick={() => setShowDoctorModal(false)}
+                    aria-label="Close"
+                  >
+                    &times;
+                  </button>
+                  <h2 className="text-2xl font-bold mb-4 text-blue-700">Add New Doctor</h2>
+                  <form onSubmit={handleAddDoctor} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                      <input
+                        type="text"
+                        value={doctorName}
+                        onChange={e => setDoctorName(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                      <input
+                        type="text"
+                        value={doctorDept}
+                        onChange={e => setDoctorDept(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                      <input
+                        type="text"
+                        value={doctorPhone}
+                        onChange={e => setDoctorPhone(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        required
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                    >
+                      Add Doctor
+                    </button>
+                  </form>
+                  <div className="mt-6">
+                    <h3 className="font-semibold mb-2 text-gray-800">Current Doctors:</h3>
+                    <ul className="space-y-2">
+                      {doctors.map((doc, idx) => (
+                        <li key={idx} className="text-sm text-gray-700">
+                          {doc.name} ({doc.department}) - {doc.phone}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* View Reports Modal */}
+            {showViewReports && (
+              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full relative">
+                  <button
+                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+                    onClick={() => setShowViewReports(false)}
+                    aria-label="Close"
+                  >
+                    &times;
+                  </button>
+                  <h2 className="text-2xl font-bold mb-4 text-blue-700">Reports</h2>
+                  <ul className="space-y-3 mb-4">
+                    <li>
+                      <span className="font-semibold text-gray-800">Admissions Today:</span>
+                      <span className="ml-2 text-green-600">120</span>
+                    </li>
+                    <li>
+                      <span className="font-semibold text-gray-800">Discharges Today:</span>
+                      <span className="ml-2 text-blue-600">98</span>
+                    </li>
+                    <li>
+                      <span className="font-semibold text-gray-800">Surgeries Scheduled:</span>
+                      <span className="ml-2 text-orange-600">15</span>
+                    </li>
+                    <li>
+                      <span className="font-semibold text-gray-800">Lab Tests Completed:</span>
+                      <span className="ml-2 text-purple-600">210</span>
+                    </li>
+                  </ul>
+                  <div className="text-sm text-gray-500">
+                    <strong>Note:</strong> Data is updated every hour.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Full Financial Report Modal */}
+            {showReport && (
+              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg shadow-lg p-8 max-w-lg w-full relative">
+                  <button
+                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+                    onClick={() => setShowReport(false)}
+                    aria-label="Close"
+                  >
+                    &times;
+                  </button>
+                  <h2 className="text-2xl font-bold mb-4 text-green-700">Full Financial Report</h2>
+                  <ul className="space-y-3 mb-4">
+                    <li>
+                      <span className="font-semibold text-gray-800">Today's Revenue:</span>
+                      <span className="ml-2 text-green-600">₹45,230</span>
+                    </li>
+                    <li>
+                      <span className="font-semibold text-gray-800">Monthly Target:</span>
+                      <span className="ml-2 text-blue-600">₹12,00,000</span>
+                    </li>
+                    <li>
+                      <span className="font-semibold text-gray-800">Outstanding Bills:</span>
+                      <span className="ml-2 text-orange-600">₹23,450</span>
+                    </li>
+                    <li>
+                      <span className="font-semibold text-gray-800">Insurance Claims:</span>
+                      <span className="ml-2 text-purple-600">₹67,890</span>
+                    </li>
+                    <li>
+                      <span className="font-semibold text-gray-800">Last Month Revenue:</span>
+                      <span className="ml-2 text-green-600">₹10,50,000</span>
+                    </li>
+                    <li>
+                      <span className="font-semibold text-gray-800">Pending Payments:</span>
+                      <span className="ml-2 text-red-600">₹12,340</span>
+                    </li>
+                  </ul>
+                  <div className="text-sm text-gray-500">
+                    <strong>Note:</strong> This report is auto-generated and updated daily.
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       </div>
